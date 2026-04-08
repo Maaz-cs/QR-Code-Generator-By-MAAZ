@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR Code — Generator By MAAZ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #02010a;
+      --deep: #080520;
+      --nebula-purple: #6c2eb9;
+      --nebula-blue: #1a0a4e;
+      --star-white: #e8e0ff;
+      --plasma: #a855f7;
+      --plasma-glow: #c084fc;
+      --nova: #38bdf8;
+      --nova-glow: #7dd3fc;
+      --comet: #f0abfc;
+      --dust: rgba(168,85,247,0.08);
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(168,85,247,0.25);
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--void);
+      font-family: 'Rajdhani', sans-serif;
+      color: var(--star-white);
+      overflow-x: hidden;
+    }
+
+    /* ── STAR FIELD ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 50% 10%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 60% 50%, rgba(200,180,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 95%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 88%, rgba(180,200,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 45%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 55% 30%, rgba(168,85,247,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 8%  70%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 95% 55%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 35% 35%, rgba(56,189,248,0.5) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NEBULA BLOBS ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 25%, rgba(108,46,185,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 35% at 85% 70%, rgba(56,189,248,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 60% 10%, rgba(168,85,247,0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 30% at 50% 90%, rgba(26,10,78,0.5) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── LAYOUT ── */
+    .universe {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+
+    /* ── HEADER ── */
+    .brand {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeDown 0.9s ease both;
+    }
+
+    .brand-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      position: relative;
+    }
+
+    .brand-icon svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 16px var(--plasma)) drop-shadow(0 0 32px rgba(168,85,247,0.4));
+    }
+
+    .orbit-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(168,85,247,0.4);
+      animation: spin 6s linear infinite;
+    }
+
+    .orbit-dot {
+      position: absolute;
+      top: -3px;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      background: var(--nova);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px var(--nova);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .brand h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      background: linear-gradient(135deg, var(--star-white) 0%, var(--plasma-glow) 50%, var(--nova-glow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      line-height: 1.1;
+    }
+
+    .brand-sub {
+      margin-top: 0.6rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(168,85,247,0.7);
+      font-weight: 300;
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow:
+        0 0 0 1px rgba(168,85,247,0.1),
+        0 8px 40px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      animation: fadeUp 0.9s 0.15s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--plasma), var(--nova), transparent);
+      opacity: 0.6;
+    }
+
+    /* ── FORM ── */
+    .field {
+      margin-bottom: 1.6rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--plasma-glow);
+      margin-bottom: 0.6rem;
+    }
+
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(168,85,247,0.3);
+      border-radius: 12px;
+      padding: 0.85rem 1.1rem;
+      color: var(--star-white);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+
+    input[type="text"]:focus, input[type="url"]:focus {
+      border-color: var(--plasma);
+      background: rgba(108,46,185,0.12);
+      box-shadow: 0 0 0 3px rgba(168,85,247,0.15), 0 0 20px rgba(168,85,247,0.1);
+    }
+
+    input::placeholder {
+      color: rgba(232,224,255,0.25);
+    }
+
+    /* ── BUTTON ── */
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #0ea5e9 100%);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.45), 0 1px 0 rgba(255,255,255,0.1) inset;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin-top: 0.5rem;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s, opacity 0.4s;
+      opacity: 0;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(124,58,237,0.6), 0 1px 0 rgba(255,255,255,0.1) inset;
+    }
+
+    .btn:active::after {
+      width: 300px; height: 300px; opacity: 0;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* ── STATUS ── */
+    .status {
+      margin-top: 1.4rem;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .status.success {
+      display: flex;
+      background: rgba(56,189,248,0.08);
+      border: 1px solid rgba(56,189,248,0.3);
+      color: var(--nova-glow);
+    }
+
+    .status.error {
+      display: flex;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+    }
+
+    .status-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0 1.6rem;
+      opacity: 0.4;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(168,85,247,0.6));
+    }
+
+    .divider::after { transform: scaleX(-1); }
+
+    .divider span {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--plasma);
+    }
+
+    /* ── FOOTER STATS ── */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+      animation: fadeUp 0.9s 0.35s ease both;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--plasma-glow), var(--nova));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(232,224,255,0.35);
+      margin-top: 0.15rem;
+    }
+
+    /* ── FLOATING PARTICLES ── */
+    .particle {
+      position: fixed;
+      width: 2px; height: 2px;
+      background: var(--plasma);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: float linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes float {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-10vh) translateX(30px); opacity: 0; }
+    }
+
+    /* ── KEYFRAMES ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── LOADING STATE ── */
+    .btn.loading {
+      pointer-events: none;
+    }
+
+    .btn.loading .btn-text { opacity: 0; }
+    .btn.loading::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      from { background-position: -200% 0; }
+      to   { background-position: 200% 0; }
+    }
+
+    .loader {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      display: none;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .btn.loading .loader { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="universe">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-icon">
+      <div class="orbit-ring"><div class="orbit-dot"></div></div>
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4"  y="4"  width="20" height="20" rx="3" fill="none" stroke="#a855f7" stroke-width="2.5"/>
+        <rect x="40" y="4"  width="20" height="20" rx="3" fill="none" stroke="#a855f7" stroke-width="2.5"/>
+        <rect x="4"  y="40" width="20" height="20" rx="3" fill="none" stroke="#a855f7" stroke-width="2.5"/>
+        <rect x="9"  y="9"  width="10" height="10" rx="1" fill="#c084fc"/>
+        <rect x="45" y="9"  width="10" height="10" rx="1" fill="#c084fc"/>
+        <rect x="9"  y="45" width="10" height="10" rx="1" fill="#c084fc"/>
+        <line x1="28" y1="14" x2="40" y2="14" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+        <line x1="14" y1="28" x2="14" y2="40" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+        <line x1="28" y1="50" x2="60" y2="50" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+        <line x1="50" y1="28" x2="50" y2="40" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="38" cy="38" r="5" fill="#7c3aed" stroke="#c084fc" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <h1>QR GALAXY</h1>
+    <p class="brand-sub">Quantum Code Generator</p>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+    <form id="qrForm" action="/generate" method="POST">
+
+      <div class="field">
+        <label for="url">⬡ &nbsp;Target URL</label>
+        <input
+          type="url"
+          id="url"
+          name="url"
+          placeholder="https://your-destination.com"
+          required
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <div class="field">
+        <label for="filename">⬡ &nbsp;Output Filename</label>
+        <input
+          type="text"
+          id="filename"
+          name="filename"
+          placeholder="my-qrcode"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <button type="submit" class="btn" id="generateBtn">
+        <span class="btn-text">⚡ &nbsp;Generate QR Code</span>
+        <div class="loader"></div>
+      </button>
+
+      <div class="status" id="statusMsg">
+        <span class="status-icon"></span>
+        <span class="status-text"></span>
+      </div>
+
+    </form>
+
+    <div class="divider"><span>transmission</span></div>
+
+    <div style="font-size:0.78rem; color: rgba(232,224,255,0.3); text-align:center; letter-spacing:0.08em; line-height:1.7;">
+      Enter any URL and a filename.<br/>Your QR code will download as a <span style="color:var(--plasma-glow)">.png</span> file instantly.
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val">PNG</div>
+      <div class="stat-label">Format</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">∞</div>
+      <div class="stat-label">Scans</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">QR</div>
+      <div class="stat-label">Standard</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating particles -->
+<script>
+  // Spawn particles
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      animation-duration: ${6 + Math.random() * 10}s;
+      animation-delay: ${Math.random() * 8}s;
+      width: ${Math.random() > 0.7 ? '3px' : '2px'};
+      height: ${Math.random() > 0.7 ? '3px' : '2px'};
+      background: ${Math.random() > 0.5 ? '#a855f7' : '#38bdf8'};
+      box-shadow: 0 0 6px ${Math.random() > 0.5 ? '#a855f7' : '#38bdf8'};
+    `;
+    document.body.appendChild(p);
+  }
+
+  // Form handling
+  const form   = document.getElementById('qrForm');
+  const btn    = document.getElementById('generateBtn');
+  const status = document.getElementById('statusMsg');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const url      = document.getElementById('url').value.trim();
+    let   filename = document.getElementById('filename').value.trim() || 'qrcode';
+    if (!filename.endsWith('.png')) filename += '.png';
+
+    // Loading state
+    btn.classList.add('loading');
+    status.className = 'status';
+    status.style.display = 'none';
+
+    try {
+      const formData = new FormData();
+      formData.append('url', url);
+      formData.append('filename', filename);
+
+      const res = await fetch('/generate', { method: 'POST', body: formData });
+
+      if (!res.ok) throw new Error('Server error');
+
+      const blob = await res.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      showStatus('success', '✦', `QR code saved as "${filename}"`);
+    } catch (err) {
+      showStatus('error', '✕', 'Something went wrong. Is Flask running?');
+    } finally {
+      btn.classList.remove('loading');
+    }
+  });
+
+  function showStatus(type, icon, text) {
+    status.className = `status ${type}`;
+    status.querySelector('.status-icon').textContent = icon;
+    status.querySelector('.status-text').textContent  = text;
+    status.style.display = 'flex';
+  }
+</script>
+
+</body>
+</html>
